@@ -28,7 +28,7 @@ app.get('/todos', (req,res)=>{
     res.send({todos}); //es6 syntax
   }, (e)=>{
     res.status(400).send(e);
-  })
+  });
 });
 
 
