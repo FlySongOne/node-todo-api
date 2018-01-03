@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 // schema property lets you define a new schema
 var UserSchema = new mongoose.Schema({
@@ -74,7 +75,24 @@ UserSchema.statics.findByToken = function (token){
 
   }); 
 }; 
- 
+ // this will run some code before a given event: we want to run save event
+ // before we save, we want to make some changes to it. 
+UserSchema.pre('save', function (next){
+  var user = this;
+
+  if(user.isModified('password')){
+
+    bcrypt.genSalt(10, (err, salt)=> {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    });
+    
+  } else {
+  	next();
+  }
+});
 
 var User = mongoose.model('User', UserSchema );
 
