@@ -14,25 +14,25 @@ var UserSchema = new mongoose.Schema({
     trim: true, // get rid of space
     unique: true,
     validate: {
-    	validator: validator.isEmail,
-    	message: '{value} is not a valid email'
+      validator: validator.isEmail,
+      message: '{value} is not a valid email'
     }
   }, 
   password: { 
-  	type:String,
+    type:String,
     require:true,
     minlength: 6
   },
   tokens: [{    // array
-  	access: {
+    access: {
       type: String,
       required: true
-  	},
-  	token:{
+    },
+    token:{
       type: String,
       required: true
-  	}
-  }]	
+    }
+  }]  
 }); 
 
 UserSchema.methods.toJSON = function () {
@@ -49,9 +49,9 @@ UserSchema.methods.generateAuthToken = function () {
   var token = jwt.sign({_id: user._id.toHexString(), access }, 'abc123').toString();
 
   user.tokens = user.tokens.concat({ access, token });   
-
+  //user.tokens.push({access, token});
   return user.save().then( () => {
-  	return token;
+    return token;
   });
 };
 
@@ -65,22 +65,19 @@ UserSchema.methods.removeToken = function (token) {
   });
 }; 
 
-UserSchema.statics.findByToken = function (token){
+UserSchema.statics.findByToken = function (token) {
   var User = this; // model methods get called with the model as this binding
   var decoded;
 
-  try {
-    decoded = jwt.verify(token, 'abc123');
+  try{
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
-    // return new Promise((resolve, reject ) => {
-    //   reject();
-    // });
-    return Promise.reject('test');
+    return Promise.reject();
   }
 
   return User.findOne({
-    '_id':decoded._id,
-    'tokens.token':token,
+    '_id': decoded._id,
+    'tokens.token': token,
     'tokens.access': 'auth'
 
   }); 
@@ -118,10 +115,9 @@ UserSchema.pre('save', function (next){
         user.password = hash;
         next();
       });
-    });
-    
+    });  
   } else {
-  	next();
+    next();
   }
 });
 

@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.post('/todos',authenticate, (req, res) => {
    
   var todo = new Todo({
-  	text:req.body.text,
+    text: req.body.text,
     _creator: req.user._id
   });
  
@@ -43,13 +43,13 @@ app.get('/todos', authenticate, (req,res)=>{
 
 //GET /todos/id
 app.get('/todos/:id', authenticate, (req,res)=>{
-  var id = req.params.id;	
+  var id = req.params.id; 
   
   // validate ID using isValid
     // 404 - send back empty body
  if(!ObjectID.isValid(id)) {
- 	console.log('ID not valid');
- 	return res.status(404).send();
+  console.log('ID not valid');
+  return res.status(404).send();
  }
  // findById 
     // success
@@ -61,50 +61,50 @@ app.get('/todos/:id', authenticate, (req,res)=>{
     _id:id,
     _creator: req.user._id
   }).then((todo)=>{
- 	if(!todo){
- 		return res.status(404).send();
- 	} 
- 		
- 	res.send({ todo }); // sending it in object form that has properties 
- 	
-  }).catch((e) => res.status(400).send());    
-
+   if(!todo){
+     return res.status(404).send();
+   } 
+    
+   res.send({ todo }); // sending it in object form that has properties 
+  
+  }).catch((e) => {
+    res.status(400).send();    
+  });
 });
 
 app.delete('/todos/:id', authenticate, (req, res) =>{
-	// get the id
+  // get the id
    var id = req.params.id;
-	// validate the id ->not valid? return 404
+  // validate the id ->not valid? return 404
    if(!ObjectID.isValid(id)) {
- 	 console.log('ID not valid');
- 	 return res.status(404).send();
+   console.log('ID not valid');
+   return res.status(404).send();
    }
-	
-	// remove todo by id
-	Todo.findOneAndRemove({
+  
+  // remove todo by id
+  Todo.findOneAndRemove({
     _id: id,
     _creator: req.user._id
   }).then((todo) => {
       if(!todo) {  // if no doc, send 404 
-      	return res.status(404).send();
+        return res.status(404).send();
       }  
        // if doc, send doc back with 200
       res.send({todo});
-	}).catch((e)=>{
-		// error
-	    // send 400 with empty body
+  }).catch((e)=>{
+    // error
+      // send 400 with empty body
       res.status(400).send(); 
-	});
-	 
+  });
+   
 });
 
 app.patch('/todos/:id', authenticate, (req, res) => {
-	var id = req.params.id;
-	var body = _.pick(req.body, ['text', 'completed'] );
+  var id = req.params.id;
+  var body = _.pick(req.body, ['text', 'completed'] );
 
-	if(!ObjectID.isValid(id)) {
- 	  console.log('ID not valid');
- 	  return res.status(404).send();
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
     }
     
     if (_.isBoolean(body.completed) && body.completed){
@@ -114,14 +114,14 @@ app.patch('/todos/:id', authenticate, (req, res) => {
       body.completedAt = null;
     }
 
-    Todo.findOneAndUpdate({_id:id, _creator: req.user._id}, { $set: body }, {new: true}).then((todo) => {
+    Todo.findOneAndUpdate({_id: id, _creator: req.user._id}, { $set: body }, {new: true}).then((todo) => {
       if(!todo) {
-      	return res.status(404).send();
+        return res.status(404).send();
       }
 
       res.send({todo});
-    }).catch((e)=> {
-    	res.status(400).send();
+    }).catch((e) => {
+      res.status(400).send();
     })
 });
 
@@ -178,7 +178,7 @@ app.post('/users/login', (req, res) => {
 });
 
 app.delete('/users/me/token', authenticate, (req, res) => {
-  req.user.removeToken(req.token).then(()=>{
+  req.user.removeToken(req.token).then(() => {
     res.status(200).send();
   }, () => {
     res.status(400).send();
@@ -186,10 +186,11 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 });
 
 app.listen( port, ()=>{
-	console.log(`Started up at port ${port}`); 
+  console.log(`Started up at port ${port}`); 
 });
 
 module.exports = {app};
+
 
 
 
