@@ -14,8 +14,13 @@ var UserSchema = new mongoose.Schema({
     trim: true, // get rid of space
     unique: true,
     validate: {
-      validator: validator.isEmail,
-      message: '{value} is not a valid email'
+    //   validator: validator.isEmail,
+    //   message: '{value} is not a valid email'
+    // }
+      validator: (value)=>{
+      return validator.isEmail(value);
+      },
+      message: '{VALUE} is not a valid email'
     }
   }, 
   password: { 
@@ -33,7 +38,7 @@ var UserSchema = new mongoose.Schema({
       required: true
     }
   }]  
-}); 
+}, { usePushEach: true}); 
 
 UserSchema.methods.toJSON = function () {
   var user = this;
